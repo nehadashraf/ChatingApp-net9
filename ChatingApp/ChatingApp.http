@@ -1,0 +1,9 @@
+@ChatingApp_HostAddress = http://localhost:5091
+
+GET {{ChatingApp_HostAddress}}/api/Users
+Accept: application/json
+
+###
+GET {{ChatingApp_HostAddress}}/api/Users/5503ecca-b519-451d-8dc2-53a01d213cd3
+Accept: application/json
+
