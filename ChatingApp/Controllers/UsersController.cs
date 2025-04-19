@@ -1,20 +1,21 @@
 ﻿using ChatingApp.Data;
 using ChatingApp.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace ChatingApp.Controllers
 {
-    [ApiController]
-    [Route("api/[controller]")]
-    public class UsersController(Context db) : Controller
+    public class UsersController(Context db) : BaseApiController
     {
+        [Authorize]
         [HttpGet]
         public async Task<ActionResult<IEnumerable<AppUser>>> GetUsers()
         {
             var users=await db.Users.ToListAsync();
             return Ok(users);
         }
+        [Authorize]
         [HttpGet("{Id:guid}")]
         public async Task<ActionResult<IEnumerable<AppUser>>> GetUsers(Guid Id)
         {
