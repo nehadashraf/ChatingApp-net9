@@ -8,7 +8,7 @@ namespace ChatingApp.Controllers
 {
     public class UsersController(Context db) : BaseApiController
     {
-        [Authorize]
+        [AllowAnonymous]
         [HttpGet]
         public async Task<ActionResult<IEnumerable<AppUser>>> GetUsers()
         {
