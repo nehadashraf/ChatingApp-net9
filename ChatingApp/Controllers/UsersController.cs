@@ -1,26 +1,37 @@
-﻿using ChatingApp.Data;
+﻿using AutoMapper;
+using ChatingApp.Dtos;
 using ChatingApp.Models;
+using ChatingApp.Repositories.UserRepo;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
+using System.Collections.Generic;
 
 namespace ChatingApp.Controllers
 {
-    public class UsersController(Context db) : BaseApiController
+    [Authorize]
+    public class UsersController(IUserRepository userRepository) : BaseApiController
     {
-        [AllowAnonymous]
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<AppUser>>> GetUsers()
+        public async Task<ActionResult<IEnumerable<MemberDto>>> GetUsers()
         {
-            var users=await db.Users.ToListAsync();
+            var users= await userRepository.GetMembersAsync();
             return Ok(users);
         }
-        [Authorize]
         [HttpGet("{Id:guid}")]
-        public async Task<ActionResult<IEnumerable<AppUser>>> GetUsers(Guid Id)
+        public async Task<ActionResult<IEnumerable<MemberDto>>> GetUsers(Guid Id)
         {
-            var user = await db.Users.FindAsync(Id);
-            if(user is null)
+            var user = await userRepository.GetMembersByIdAsync(Id);
+            if (user is null)
+            {
+                return NotFound();
+            }
+            return Ok(user);
+        }
+        [HttpGet("{username}")]
+        public async Task<ActionResult<IEnumerable<MemberDto>>> GetUsers(string username)
+        {
+            var user = await userRepository.GetMembersByUserNameAsync(username);
+            if (user is null)
             {
                 return NotFound();
             }

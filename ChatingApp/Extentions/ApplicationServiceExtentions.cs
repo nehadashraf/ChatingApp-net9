@@ -1,5 +1,6 @@
 ﻿using ChatingApp.Data;
 using ChatingApp.Interfaces;
+using ChatingApp.Repositories.UserRepo;
 using ChatingApp.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
@@ -19,7 +20,8 @@ namespace ChatingApp.Extentions
             );
             services.AddCors();
             services.AddScoped<ITokenService, TokenService>();
-
+            services.AddScoped<IUserRepository, UserRepository>();
+            services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
             return services;
         }
     }
