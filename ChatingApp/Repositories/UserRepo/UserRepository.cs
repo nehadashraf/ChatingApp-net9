@@ -61,5 +61,7 @@ namespace ChatingApp.Repositories.UserRepo
                 .ProjectTo<MemberDto>(mapper.ConfigurationProvider)
                 .SingleOrDefaultAsync();
         }
+
+      
     }
 }
