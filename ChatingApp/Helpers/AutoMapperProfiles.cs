@@ -15,7 +15,9 @@ namespace ChatingApp.Helpers
                 o.MapFrom(s => s.Photos.FirstOrDefault(x => x.IsMain)!.Url));
             CreateMap<Photo, PhotoDto>();
             CreateMap<MemberUpdatedDto, AppUser>();
-               
+            CreateMap<RegisterDto, AppUser>();
+            CreateMap<string, DateOnly>().ConvertUsing(s=>DateOnly.Parse(s));
+
         }
     }
 }

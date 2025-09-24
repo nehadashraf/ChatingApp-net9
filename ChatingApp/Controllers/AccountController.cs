@@ -1,4 +1,5 @@
-﻿using Azure.Identity;
+﻿using AutoMapper;
+using Azure.Identity;
 using ChatingApp.Data;
 using ChatingApp.Dtos;
 using ChatingApp.Interfaces;
@@ -12,7 +13,7 @@ using System.Text;
 
 namespace ChatingApp.Controllers
 {
-    public class AccountController(Context db,ITokenService tokenService) : BaseApiController
+    public class AccountController(Context db,ITokenService tokenService,IMapper mapper) : BaseApiController
     {
         [HttpPost("register")]
         public async Task<ActionResult<UserDto>> Register(RegisterDto registerDto)
@@ -21,23 +22,21 @@ namespace ChatingApp.Controllers
             {
                 return BadRequest("Username is already exist");
             }
-            return Ok();
-          //using var hmac = new HMACSHA512();
-          //  var user = new AppUser
-          //  {
+            using var hmac = new HMACSHA512();
+            var user = mapper.Map<AppUser>(registerDto);
+            user.UserName = registerDto.Username.ToLower();
+            user.PasswordHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(registerDto.Password));
+            user.PasswordSalt = hmac.Key;
+          
+            db.Add(user);
+            await db.SaveChangesAsync();
+            return Ok(new UserDto
+            {
+                Username = user.UserName,
+                Token = tokenService.CreateToken(user),
+                KnownAs=user.KnownAs
 
-          //      UserName = registerDto.Username.ToLower(),
-          //      PasswordHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(registerDto.Password)),
-          //      PasswordSalt = hmac.Key
-          //  };
-          //  db.Add(user);
-          //  await db.SaveChangesAsync();
-          //  return Ok(new UserDto
-          //  {
-          //      Username = user.UserName,
-          //      Token = tokenService.CreateToken(user)
-
-          //  });
+            });
         }
         [HttpPost("login")]
         public async Task<ActionResult<UserDto>> Login(LoginDto loginDto)
@@ -54,7 +53,9 @@ namespace ChatingApp.Controllers
             {
                 Username = user.UserName,
                 Token = tokenService.CreateToken(user),
-                PhotoUrl = user.Photos.FirstOrDefault(x => x.IsMain)?.Url
+                PhotoUrl = user.Photos.FirstOrDefault(x => x.IsMain)?.Url,
+                KnownAs = user.KnownAs
+
              }); 
         }
         private async Task<bool> UserExists(string username)
